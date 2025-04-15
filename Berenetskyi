@@ -1,0 +1,97 @@
+class Node:
+    def __init__(self, value, block_data=None):
+        self.value = value
+        self.left = None
+        self.right = None
+        self.data = block_data
+
+def pre_order_traversal(node):
+    if node:
+        print(node.value, end=" ")
+        pre_order_traversal(node.left)
+        pre_order_traversal(node.right)
+
+def in_order_traversal(node):
+    if node:
+        in_order_traversal(node.left)
+        print(node.value, end=" ")
+        in_order_traversal(node.right)
+
+def post_order_traversal(node):
+    if node:
+        post_order_traversal(node.left)
+        post_order_traversal(node.right)
+        print(node.value, end=" ")
+
+def insert_bst(root, value, block_data):
+    if root is None:
+        return Node(value, block_data)
+    if value < root.value:
+        root.left = insert_bst(root.left, value, block_data)
+    elif value > root.value:
+        root.right = insert_bst(root.right, value, block_data)
+    return root
+
+def count_nodes(node):
+    if node is None:
+        return 0
+    return 1 + count_nodes(node.left) + count_nodes(node.right)
+
+def get_depth(node):
+    if node is None:
+        return 0
+    left_depth = get_depth(node.left)
+    right_depth = get_depth(node.right)
+    return max(left_depth, right_depth) + 1
+
+def is_complete(root, index, num_nodes):
+    if root is None:
+        return True
+    if index >= num_nodes:
+        return False
+    return is_complete(root.left, 2 * index + 1, num_nodes) and \
+           is_complete(root.right, 2 * index + 2, num_nodes)
+
+def is_full_binary_tree(root):
+    if root is None:
+        return True
+    if (root.left is None and root.right is not None) or \
+       (root.left is not None and root.right is None):
+        return False
+    return is_full_binary_tree(root.left) and is_full_binary_tree(root.right)
+
+def is_perfect(root):
+    depth = get_depth(root)
+    return (2**depth - 1) == count_nodes(root) and is_full_binary_tree(root)
+
+
+blocks_data = [
+    {"id": "a1b2", "view": 5, "value": 3.14},
+    {"id": "c3d4", "view": 2, "value": 1.618},
+    {"id": "e5f6", "view": 8, "value": 2.71},
+    {"id": "g7h8", "view": 1, "value": 0.577},
+    {"id": "i9j0", "view": 5, "value": 42.0}
+]
+
+
+root = None
+for block in blocks_data:
+    root = insert_bst(root, block["view"], block)
+
+
+print("Pre-order обхід:")
+pre_order_traversal(root)
+print("\nIn-order обхід:")
+in_order_traversal(root)
+print("\nPost-order обхід:")
+post_order_traversal(root)
+
+
+num_nodes = count_nodes(root)
+is_comp = is_complete(root, 0, num_nodes)
+is_full = is_full_binary_tree(root)
+is_perf = is_perfect(root)
+
+print(f"\nЧи є дерево повним? {is_comp}")
+print(f"Чи є дерево повним бінарним? {is_full}")
+print(f"Чи є дерево ідеальним? {is_perf}")
