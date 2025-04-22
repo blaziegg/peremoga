@@ -1,3 +1,5 @@
+import csv
+
 class Node:
     def __init__(self, value):
         self.value = value
@@ -53,7 +55,7 @@ def get_tree_type(root):
     if is_perfect(root):
         return "perfect"
     elif is_full(root) and is_complete(root, 0, node_count):
-        return "perfect" # Prioritize perfect
+        return "perfect" # Пріоритет досконалому
     elif is_complete(root, 0, node_count):
         return "complete"
     elif is_full(root):
@@ -79,19 +81,21 @@ def post_order_traversal(root):
         post_order_traversal(root.right)
         print(root.value, end=" ")
 
-block_values = [5, 3, 8, 1, 4, 7, 9, 2, 6, 10]
+chain_file = 'chain.csv'
+block_values = []
+
+with open(chain_file, 'r') as file:
+        reader = csv.DictReader(file)
+        for row in reader:
+            block_values.append(int(row['view']))
 
 bst_root = None
 for value in block_values:
     bst_root = insert(bst_root, value)
-
-tree_type = get_tree_type(bst_root)
-print(f"Тип побудованого бінарного дерева пошуку: {tree_type}")
-print("Прямий обхід:")
+print(f"Тип побудованого бінарного дерева пошуку (на основі даних з '{chain_file}'): {get_tree_type(bst_root)}")
+print("\nПрямий обхід:")
 pre_order_traversal(bst_root)
-print()
-print("Симетричний обхід:")
+print("\nСиметричний обхід:")
 in_order_traversal(bst_root)
-print()
-print("Зворотний обхід:")
+print("\nЗворотний обхід:")
 post_order_traversal(bst_root)
