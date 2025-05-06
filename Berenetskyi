@@ -1,27 +1,11 @@
+import csv
+
 class Node:
     def __init__(self, value, block_data=None):
         self.value = value
         self.left = None
         self.right = None
         self.data = block_data
-
-def pre_order_traversal(node):
-    if node:
-        print(node.value, end=" ")
-        pre_order_traversal(node.left)
-        pre_order_traversal(node.right)
-
-def in_order_traversal(node):
-    if node:
-        in_order_traversal(node.left)
-        print(node.value, end=" ")
-        in_order_traversal(node.right)
-
-def post_order_traversal(node):
-    if node:
-        post_order_traversal(node.left)
-        post_order_traversal(node.right)
-        print(node.value, end=" ")
 
 def insert_bst(root, value, block_data):
     if root is None:
@@ -31,6 +15,74 @@ def insert_bst(root, value, block_data):
     elif value > root.value:
         root.right = insert_bst(root.right, value, block_data)
     return root
+
+def pre_order_traversal(node):
+    if node:
+        print(f"View: {node.value}, ID: {node.data['id'] if node.data else None}", end=" ")
+        pre_order_traversal(node.left)
+        pre_order_traversal(node.right)
+
+def in_order_traversal(node):
+    if node:
+        in_order_traversal(node.left)
+        print(f"View: {node.value}, ID: {node.data['id'] if node.data else None}", end=" ")
+        in_order_traversal(node.right)
+
+def post_order_traversal(node):
+    if node:
+        post_order_traversal(node.left)
+        post_order_traversal(node.right)
+        print(f"View: {node.value}, ID: {node.data['id'] if node.data else None}", end=" ")
+
+def build_bst_from_csv(filename="votes.csv"):
+    nodes = {}
+    root_id = None
+
+    with open(filename, 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            vote_id = int(row['vote_id'])
+            left_id = row['left']
+            right_id = row['right']
+
+            nodes[vote_id] = Node(vote_id)
+
+
+    with open(filename, 'r', newline='') as csvfile:
+        reader = csv.DictReader(csvfile)
+        for row in reader:
+            vote_id = int(row['vote_id'])
+            left_id = row['left']
+            right_id = row['right']
+
+            current_node = nodes[vote_id]
+            if left_id:
+                current_node.left = nodes[int(left_id)]
+            if right_id:
+                current_node.right = nodes[int(right_id)]
+
+
+            is_root = True
+            for other_id, other_node in nodes.items():
+                if other_node.left and other_node.left.value == vote_id:
+                    is_root = False
+                    break
+                if other_node.right and other_node.right.value == vote_id:
+                    is_root = False
+                    break
+            if is_root:
+                root_id = vote_id
+
+    return nodes.get(root_id)
+
+root = build_bst_from_csv()
+
+print("Pre-order обхід бінарного дерева (з файлу votes.csv):")
+pre_order_traversal(root)
+print("\nIn-order обхід бінарного дерева (з файлу votes.csv):")
+in_order_traversal(root)
+print("\nPost-order обхід бінарного дерева (з файлу votes.csv):")
+post_order_traversal(root)
 
 def count_nodes(node):
     if node is None:
@@ -64,34 +116,14 @@ def is_perfect(root):
     depth = get_depth(root)
     return (2**depth - 1) == count_nodes(root) and is_full_binary_tree(root)
 
+if root:
+    num_nodes = count_nodes(root)
+    is_comp = is_complete(root, 0, num_nodes)
+    is_full = is_full_binary_tree(root)
+    is_perf = is_perfect(root)
 
-blocks_data = [
-    {"id": "a1b2", "view": 5, "value": 3.14},
-    {"id": "c3d4", "view": 2, "value": 1.618},
-    {"id": "e5f6", "view": 8, "value": 2.71},
-    {"id": "g7h8", "view": 1, "value": 0.577},
-    {"id": "i9j0", "view": 5, "value": 42.0}
-]
-
-
-root = None
-for block in blocks_data:
-    root = insert_bst(root, block["view"], block)
-
-
-print("Pre-order обхід:")
-pre_order_traversal(root)
-print("\nIn-order обхід:")
-in_order_traversal(root)
-print("\nPost-order обхід:")
-post_order_traversal(root)
-
-
-num_nodes = count_nodes(root)
-is_comp = is_complete(root, 0, num_nodes)
-is_full = is_full_binary_tree(root)
-is_perf = is_perfect(root)
-
-print(f"\nЧи є дерево повним? {is_comp}")
-print(f"Чи є дерево повним бінарним? {is_full}")
-print(f"Чи є дерево ідеальним? {is_perf}")
+    print(f"\nЧи є дерево повним? {is_comp}")
+    print(f"Чи є дерево повним бінарним? {is_full}")
+    print(f"Чи є дерево ідеальним? {is_perf}")
+else:
+    print("\nФайл votes.csv порожній або не містить коректних даних дерева.")
